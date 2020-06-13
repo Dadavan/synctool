@@ -4,7 +4,7 @@ MENU="[NUM] Manage single Backup\n[b] Backup all Paths\n[a] Add new Path\n[e] Ex
 # Placeholders - will be moved to .cfg file in future
 FILEDB="/home/dada/projects/synctool/file.db"
 SYNCDB="/home/dada/projects/synctool/sync.db"
-IP="3.124.181.124"
+IP="18.156.66.217"
 
 # Creates a dynamic title depending on what menu your'e viewing
 function title {
@@ -94,20 +94,23 @@ function file_menu {
 
 # Deletes input files from selected backup version
 function file_delete {
-	read -p "Files to be deleted, seperated by Space: " DELETE
+	read -p "Files to be deleted, seperated by Space: " DELETE ; echo
 	DEL_ARR=($DELETE)
 	# Shows designated files on remote server
 	DELCHK=`sudo -u sync ssh $IP "ls -ltr /tmp/backup/${VER_ARR[$VER_OPT-1]}" | awk '{print $9}'`
 	DELCHK_ARR=($DELCHK)
+	ITER_VER=${VER_ARR[$VER_OPT-1]}
 	# Iterates over files to be deleted
-	for file in $DEL_ARR ; do
+	for file in ${DEL_ARR[@]} ; do
 		# Deletes the files after checking that they exist on remote server
 		if [[ " ${DELCHK_ARR[@]} " =~ " ${file} " ]] ; then
-			sudo -u sync ssh $IP "rm /tmp/backup/${VER_ARR[$VER_OPT-1]}/$file" && echo -e "$file Deleted"
+			sudo -u sync ssh $IP "rm -f /tmp/backup/$ITER_VER/$file" && echo -e "$file Deleted"
 		else
 			echo -e "$file not Found"
 		fi
 	done
+
+	echo ; read -p "Done, press any key to Return..."
 }
 
 function backup_all {
